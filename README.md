@@ -1,28 +1,32 @@
 # match
-A simple PyTorch-like neural network library for education
 
-- storage
-- matrix instead of tensor
-- nn (layers and loss)
-- optim
-- binary mnist data in repo
+A pure-Python, PyTorch-like automatic differentiation library for education. Here is the directory structure of the repository.
 
-```python
-def stable_softmax(x):
-    e_x = np.exp(x - np.max(x))
-    return e_x / np.sum(e_x)
-```
-
-# Exercises
-
-- Add LeakyReLU
-- Add MAE (and CE?)
+~~~bash
+.
+├── match               # The match library
+│  ├── __init__.py      # - contains default import statements
+│  ├── list2d.py        # - a storage class for matrix data
+│  ├── matrix.py        # - the matrix class (including autodiff)
+│  └── nn.py            # - higher-level neural network functionality
+├── demo_linear.ipynb   # A linear model demo
+├── test.py             # Unit-tests for correctness
+├── LICENSE             # MIT License
+└── README.md           # This document
+~~~
 
 # Testing
 
-```bash
+The library has a limited number of tests in the file `test.py` found in the root directory. Unit tests require the PyTorch library. They should be executed with:
+
+~~~bash
 python -m unittest test
-```
+~~~
+
+# Sandbox
+
+The `sandbox` directory can be ignored. That is where I am putting ideas for future updates.
+
 # Resources
 
 - [Build Your own Deep Learning Framework - A Hands-on Introduction to Automatic Differentiation - Part 2](https://mostafa-samir.github.io/auto-diff-pt2/ "Build Your own Deep Learning Framework - A Hands-on Introduction to Automatic Differentiation - Part 2")
