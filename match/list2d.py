@@ -68,6 +68,13 @@ class List2D(object):
         ]
         return List2D(*self.shape, data)
 
+    def leakyrelu(self) -> List2D:
+        data = [
+            [max(0.0, self.data[i][j]) for j in range(self.ncol)]
+            for i in range(self.nrow)
+        ]
+        return List2D(*self.shape, data)
+
     def sigmoid(self) -> List2D:
         data = [
             [sigmoid(self.data[i][j]) for j in range(self.ncol)]
