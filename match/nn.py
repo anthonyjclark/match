@@ -22,11 +22,23 @@ from match import Matrix
 class Module:
     """Base class for all neural network modules.
 
-    All custom models should subclass this class. Modules can also
-    contain other Modules, allowing to nest them in a tree structure.
-    You can assign the submodules as regular attributes:
+    All custom models should subclass this class. Here is an example
+    usage of the Module class.
 
+        class MatchNetwork(match.nn.Module):
+            def __init__(self, n0, n1, n2) -> None:
+                super().__init__()
+                self.linear1 = match.nn.Linear(n0, n1)
+                self.relu = match.nn.ReLU()
+                self.linear2 = match.nn.Linear(n1, n2)
+                self.sigmoid = match.nn.Sigmoid()
 
+            def forward(self, x) -> Matrix:
+                x = self.linear1(x)
+                x = self.relu(x)
+                x = self.linear2(x)
+                x = self.sigmoid(x)
+                return x
     """
 
     def __call__(self, *args) -> Matrix:
