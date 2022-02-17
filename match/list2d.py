@@ -1,6 +1,7 @@
 from __future__ import annotations
-from operator import add, mul, pow, gt
+
 from math import exp
+from operator import add, gt, mul, pow
 from random import gauss
 from typing import Callable
 
@@ -156,11 +157,11 @@ class List2D(object):
 
     def __truediv__(self, rhs: float | int | List2D) -> List2D:
         """Element-wise division: self / rhs."""
-        return self * rhs ** -1
+        return self * rhs**-1
 
     def __rtruediv__(self, lhs: float | int | List2D) -> List2D:
         """Self as RHS in element-wise division: lhs / self."""
-        return lhs * self ** -1
+        return lhs * self**-1
 
     def __pow__(self, rhs: float | int) -> List2D:
         """Element-wise exponentiation: self ** rhs."""

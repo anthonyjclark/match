@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import unittest
 
-import match
-from match import Matrix
-
-# Use torch to compute correct output
+# Use torch to compute correct output for comparison
 import torch
 from torch import Tensor
+
+import match
+from match import Matrix
 
 
 def almostEqual(matrix: Matrix, tensor: Tensor, check_grad=False) -> bool:

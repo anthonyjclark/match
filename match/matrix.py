@@ -5,6 +5,7 @@
 # - abs, __abs__, sin, cos, others?
 
 from __future__ import annotations
+
 from .list2d import List2D
 
 
@@ -63,6 +64,10 @@ def ones(nrow: int, ncol: int, children: tuple = ()) -> Matrix:
         Matrix: a nrow by ncol matrix filled with val
     """
     return full(nrow, ncol, 1.0, children)
+
+
+def mat(values: list[list[float]]) -> Matrix:
+    return Matrix(List2D.fromData(values))
 
 
 class Matrix(object):
@@ -199,7 +204,7 @@ class Matrix(object):
         """Element-wise exponentiation: self^rhs."""
         assert isinstance(rhs, (float, int)), f"Wrong type: {type(rhs)}"
 
-        result = Matrix(self.data ** rhs, children=(self,))
+        result = Matrix(self.data**rhs, children=(self,))
 
         def _gradient() -> None:
             # rhsvals will be a number (not matrix)
@@ -241,11 +246,11 @@ class Matrix(object):
 
     def __truediv__(self, rhs: float | int) -> Matrix:
         """Element-wise division: self / rhs."""
-        return self * rhs ** -1
+        return self * rhs**-1
 
     def __rtruediv__(self, lhs: float | int) -> Matrix:
         """Self as RHS in element-wise division: lhs / self."""
-        return lhs * self ** -1
+        return lhs * self**-1
 
     def __neg__(self) -> Matrix:
         """Element-wise unary negation: -self."""

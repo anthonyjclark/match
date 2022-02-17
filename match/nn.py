@@ -1,9 +1,9 @@
 from __future__ import annotations
-import match
-
-from match import Matrix
 
 from math import sqrt
+
+import match
+from match import Matrix
 
 
 class Module:

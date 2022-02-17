@@ -1,19 +1,25 @@
-# match
+# Match
 
 A pure-Python, PyTorch-like automatic differentiation library for education. Here is the directory structure of the repository.
 
 ~~~bash
 .
-├── match               # The match library
+├── match               # The Match library
 │  ├── __init__.py      # - contains default import statements
 │  ├── list2d.py        # - a storage class for matrix data
 │  ├── matrix.py        # - the matrix class (including autodiff)
 │  └── nn.py            # - higher-level neural network functionality
-├── demo_linear.ipynb   # A linear model demo
+├── demo_linear.ipynb   # A linear model demo (Jupyter)
+├── demo_linear.py      # A linear model demo (script)
 ├── test.py             # Unit-tests for correctness
+test.py             # Unit-tests for correctness
 ├── LICENSE             # MIT License
 └── README.md           # This document
 ~~~
+
+# Demos
+
+Although `Match` does not have any dependencies, the demos do. Demos import [matplotlib](https://matplotlib.org/), but you can skip (or comment)plotting cells (code) and not miss out on much. Demos come in two flavors: Jupyter Notebooks and Python scripts. These files are synced using [Jupytext](https://jupytext.readthedocs.io/en/latest/ "Jupyter Notebooks as Markdown Documents, Julia, Python or R Scripts — Jupytext documentation").
 
 # Testing
 
