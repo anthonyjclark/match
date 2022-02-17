@@ -14,19 +14,22 @@
 #     name: python3
 # ---
 
-from jupyterthemes import jtplot
-from matplotlib import pyplot as plt
-from matplotlib.animation import FuncAnimation
-
-import match
-
 # %%
 # %load_ext autoreload
 # %autoreload 2
 # %autosave 0
 # %matplotlib notebook
 
+# %%
+from jupyterthemes import jtplot
+from matplotlib import pyplot as plt
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
 
+# %%
+import match
+
+# %%
 jtplot.style(context="talk")
 
 
@@ -45,7 +48,7 @@ def plot_linear(x, *, yt=None, yp=None, ypl=None, ax=None):
     plot_args = {"projection": "3d"} if three_d else {}
 
     if not ax:
-        fig, ax = plt.subplots(subplot_kw=plot_args)
+        _, ax = plt.subplots(figsize=(8,4), subplot_kw=plot_args)
 
     # Grab the underlying matrix data (a bit hacky for now)
     xT = x.T.data.data
@@ -102,6 +105,18 @@ loss_fcn = match.nn.MSELoss()
 # A single-neuron model
 model = match.nn.Linear(nx, ny)
 
+# An alternative method for constructing the model
+# class Neuron(match.nn.Module):
+#     def __init__(self):
+#         super().__init__()
+#         self.linear = match.nn.Linear(nx, ny)
+
+#     def forward(self, x):
+#         return self.linear(x)
+
+# model = Neuron()
+
+
 # Save model predictions for each epoch so that we can
 # plot progress
 predictions = []
@@ -123,7 +138,7 @@ for epoch in range(num_epochs):
         param.data = param.data - learning_rate * param.grad
 
 # %%
-_, (ax_loss, ax_lines) = plt.subplots(1, 2)
+_, (ax_loss, ax_lines) = plt.subplots(1, 2, figsize=(8, 4))
 
 losses = list(zip(*predictions))[2]
 ax_loss.plot(range(1, num_epochs + 1), losses)
@@ -133,7 +148,35 @@ plot_linear(x, yt=y_target, ax=ax_lines)
 for y_prediction, epoch, loss in predictions:
     label = f"{epoch:>3}/{num_epochs}: {loss:5.2f}"
     plot_linear(x, yp=y_prediction, ypl=label, ax=ax_lines)
-ax_lines.set_title("Model Improvement")
+_ = ax_lines.set_title("Model Improvement")
+
+# %%
+fig, ax = plt.subplots(figsize=(8, 4))
+
+ax.set_xlim([-2.5, 2.5])
+ax.set_ylim([-5, 20])
+
+line, = ax.plot([], [], color="r", lw=2, label="Prediction")
+
+xT = x.T.data.data
+ytT = y_target.T.data.data
+
+ax.scatter(xT, ytT, lw=2, label="Target")
+
+ax.legend()
+
+def animate(frame):
+    ypT = frame[0].T.data.data
+    line.set_data(xT, ypT)
+    return line,
+
+animation = FuncAnimation(fig, animate, predictions)
+
+# %%
+HTML(animation.to_jshtml())
+
+# %%
+# animation.save("demo_linear_1d.mp4")
 
 # %% [markdown]
 # # Train a two-feature linear model¶
@@ -183,7 +226,7 @@ for epoch in range(num_epochs):
         param.data = param.data - learning_rate * param.grad
 
 # %%
-fig = plt.figure()
+fig = plt.figure(figsize=(8, 4))
 
 ax_loss = fig.add_subplot(121)
 
@@ -201,4 +244,6 @@ plot_linear(x, yp=yp, ypl=f"{e:>3}/{num_epochs}: {l:5.2f}", ax=ax_lines)
 
 # Final model
 yp, e, l = predictions[-1]
-plot_linear(x, yp=yp, ypl=f"{e:>3}/{num_epochs}: {l:5.2f}", ax=ax_lines)
+_ = plot_linear(x, yp=yp, ypl=f"{e:>3}/{num_epochs}: {l:5.2f}", ax=ax_lines)
+
+# %%

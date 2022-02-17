@@ -16,6 +16,8 @@ A pure-Python, PyTorch-like automatic differentiation library for education. Her
 └── README.md           # This document
 ~~~
 
+demo_linear_1d.mp4
+
 # Demos
 
 Although `Match` does not have any dependencies, the demos do. Demos import [matplotlib](https://matplotlib.org/), but you can skip (or comment) plotting cells (code) and not miss out on much. Demos come in two flavors: Jupyter Notebooks and Python scripts. These files are synced using [Jupytext](https://jupytext.readthedocs.io/en/latest/ "Jupyter Notebooks as Markdown Documents, Julia, Python or R Scripts — Jupytext documentation").
@@ -73,3 +75,4 @@ The `sandbox` directory can be ignored. That is where I am putting ideas for fut
 - [A tiny scalar-valued autograd engine and a neural net library on top of it with PyTorch-like API](https://github.com/karpathy/micrograd "karpathy/micrograd: A tiny scalar-valued autograd engine and a neural net library on top of it with PyTorch-like API")
 - [The magic behind autodiff | Tutorials on automatic differentiation and JAX](https://sscardapane.github.io/learn-autodiff/ "The magic behind autodiff | Tutorials on automatic differentiation and JAX")
 - [Google Colab: Coding a neural net](https://colab.research.google.com/drive/1HS3qbHArkqFlImT2KnF5pcMCz7ueHNvY?usp=sharing#scrollTo=RWqEaOWqNbwV)
+- [Example matrix gradients](https://github.com/Mostafa-Samir/Hands-on-Intro-to-Auto-Diff/blob/master/autodiff/grads.py)

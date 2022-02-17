@@ -51,13 +51,14 @@ class Module:
 
     def parameters(self) -> list[Matrix]:
         """Collect all parameters by searching attributes for Matrix objects."""
-        modules_with_parameters = (Linear,)
         params = []
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
-            if isinstance(attr, modules_with_parameters):
+            if isinstance(attr, Linear):
                 params.append(attr.W)
                 params.append(attr.b)
+            elif isinstance(attr, Matrix):
+                params.append(attr)
         return params
 
     def zero_grad(self) -> None:
