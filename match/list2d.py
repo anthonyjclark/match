@@ -11,6 +11,15 @@ def sigmoid(z):
 
 
 class List2D(object):
+    """A storage and arithmetic object for matrix data.
+
+    This is an inefficient, but easy-to-understand implementation
+    of many matrix multiplication operations. It would be better
+    to store this data using a list with a single dimension and
+    strides, but that may make it too hard to understand for
+    an educational implementation.
+    """
+
     def __init__(
         self, nrow: int, ncol: int, val: float | list[list[float]] = 0.0
     ) -> None:
@@ -73,6 +82,7 @@ class List2D(object):
         return self.__repr__()
 
     def broadcast(self, nrow: int, ncol: int) -> List2D:
+        """Broadcast from current shape to (nrow, ncol)."""
         if self.nrow == nrow and self.ncol == ncol:
             return self
         elif self.nrow == 1 and self.ncol == 1:
@@ -84,6 +94,7 @@ class List2D(object):
             return List2D.fromData(data)
 
     def unbroadcast(self, nrow: int, ncol: int) -> List2D:
+        """Unbroadcast from current shape to (nrow, ncol)."""
         if self.nrow == nrow and self.ncol == ncol:
             return self
         elif nrow == 1 and ncol == 1:

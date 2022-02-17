@@ -1,10 +1,12 @@
-# TODO:
-# - commenting (asserts, classes, etc.)
-# - document function name conventions (_ vs not)
-# - update parameters without updating gradients
-# - abs, __abs__, sin, cos, others?
+"""
+TODO(AJC): things for me to add in the future.
+
+- abs, __abs__, sin, cos, log, max, min, others?
+"""
 
 from __future__ import annotations
+
+from copy import deepcopy
 
 from .list2d import List2D
 
@@ -67,11 +69,20 @@ def ones(nrow: int, ncol: int, children: tuple = ()) -> Matrix:
 
 
 def mat(values: list[list[float]]) -> Matrix:
-    return Matrix(List2D.fromData(values))
+    """Create a matrix from a two-dimensional list of data.
+
+    Args:
+        values (list[list[float]]): data for matrix
+
+    Returns:
+        Matrix: a matrix with the provided data.
+    """
+    return Matrix(List2D.fromData(deepcopy(values)))
 
 
 class Matrix(object):
     def __init__(self, data: List2D, children: tuple = ()) -> None:
+        """A matrix object that tracks computations for computing gradients."""
         super().__init__()
         self.nrow = data.nrow
         self.ncol = data.ncol
@@ -106,6 +117,7 @@ class Matrix(object):
 
         topological_sort(self)
 
+        # Initialize all gradients with ones
         self.grad.ones_()
 
         # Update gradients from output to input
@@ -124,6 +136,7 @@ class Matrix(object):
         return result
 
     def sum(self) -> Matrix:
+        """Return the sum of all values across both dimensions."""
         result = Matrix(List2D(1, 1, self.data.sum()), children=(self,))
 
         def _gradient() -> None:
@@ -133,6 +146,7 @@ class Matrix(object):
         return result
 
     def mean(self) -> Matrix:
+        """Return the mean of all values across both dimensions."""
         result = Matrix(List2D(1, 1, self.data.mean()), children=(self,))
 
         def _gradient() -> None:
@@ -141,12 +155,6 @@ class Matrix(object):
 
         result._gradient = _gradient
         return result
-
-    def log(self) -> Matrix:
-        raise NotImplementedError
-
-    def max(self) -> Matrix:
-        raise NotImplementedError
 
     def relu(self) -> Matrix:
         """Element-wise rectified linear unit (ReLU)."""
@@ -204,7 +212,7 @@ class Matrix(object):
         """Element-wise exponentiation: self^rhs."""
         assert isinstance(rhs, (float, int)), f"Wrong type: {type(rhs)}"
 
-        result = Matrix(self.data**rhs, children=(self,))
+        result = Matrix(self.data ** rhs, children=(self,))
 
         def _gradient() -> None:
             # rhsvals will be a number (not matrix)
@@ -246,11 +254,11 @@ class Matrix(object):
 
     def __truediv__(self, rhs: float | int) -> Matrix:
         """Element-wise division: self / rhs."""
-        return self * rhs**-1
+        return self * rhs ** -1
 
     def __rtruediv__(self, lhs: float | int) -> Matrix:
         """Self as RHS in element-wise division: lhs / self."""
-        return lhs * self**-1
+        return lhs * self ** -1
 
     def __neg__(self) -> Matrix:
         """Element-wise unary negation: -self."""
