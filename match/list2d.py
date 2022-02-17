@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from math import exp
 from operator import add, gt, mul, pow
-from random import gauss, uniform
+from random import gauss
 from typing import Callable
 
 
@@ -38,11 +38,6 @@ class List2D(object):
     @staticmethod
     def randn(nrow: int, ncol: int) -> List2D:
         data = [[gauss(0, 1) for _ in range(ncol)] for _ in range(nrow)]
-        return List2D.fromData(data)
-
-    @staticmethod
-    def uniform(nrow: int, ncol: int) -> List2D:
-        data = [[uniform(-1, 1) for _ in range(ncol) for _ in range(nrow)]]
         return List2D.fromData(data)
 
     def ones_(self) -> None:

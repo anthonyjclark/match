@@ -91,7 +91,9 @@ class Sigmoid(Module):
 
 
 class MSELoss(Module):
-    """ """
+    """
+    loss = (1/N) * Σ (yhati - yi)^2
+    """
 
     def forward(self, prediction: Matrix, target: Matrix) -> Matrix:
         return ((target - prediction) ** 2).mean()
