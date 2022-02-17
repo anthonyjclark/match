@@ -16,7 +16,7 @@ A pure-Python, PyTorch-like automatic differentiation library for education. Her
 └── README.md           # This document
 ~~~
 
-demo_linear_1d.mp4
+https://user-images.githubusercontent.com/4173647/154419094-5787e3a5-0e69-4d89-9ed7-e3ee507f1f32.mp4
 
 # Demos
 
