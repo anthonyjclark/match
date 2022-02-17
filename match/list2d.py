@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from math import exp
 from operator import add, gt, mul, pow
-from random import gauss
+from random import gauss, uniform
 from typing import Callable
 
 
@@ -38,6 +38,11 @@ class List2D(object):
     @staticmethod
     def randn(nrow: int, ncol: int) -> List2D:
         data = [[gauss(0, 1) for _ in range(ncol)] for _ in range(nrow)]
+        return List2D.fromData(data)
+
+    @staticmethod
+    def uniform(nrow: int, ncol: int) -> List2D:
+        data = [[uniform(-1, 1) for _ in range(ncol) for _ in range(nrow)]]
         return List2D.fromData(data)
 
     def ones_(self) -> None:
@@ -157,11 +162,11 @@ class List2D(object):
 
     def __truediv__(self, rhs: float | int | List2D) -> List2D:
         """Element-wise division: self / rhs."""
-        return self * rhs**-1
+        return self * rhs ** -1
 
     def __rtruediv__(self, lhs: float | int | List2D) -> List2D:
         """Self as RHS in element-wise division: lhs / self."""
-        return lhs * self**-1
+        return lhs * self ** -1
 
     def __pow__(self, rhs: float | int) -> List2D:
         """Element-wise exponentiation: self ** rhs."""

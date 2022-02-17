@@ -13,6 +13,8 @@ from match import Matrix
 def almostEqual(matrix: Matrix, tensor: Tensor, check_grad=False) -> bool:
     m = to_tensor(matrix, get_grad=check_grad)
     t = Tensor(tensor.grad) if check_grad else tensor
+    if t.ndim == 1:
+        m.squeeze_()
     return torch.allclose(m, t, rtol=1e-02, atol=1e-05)
 
 
@@ -21,7 +23,7 @@ def to_tensor(matrix: Matrix, requires_grad=False, get_grad=False) -> Tensor:
     return torch.tensor(mdata, requires_grad=requires_grad)
 
 
-def mat_ten(dim1, dim2) -> tuple[Matrix, Tensor]:
+def mat_and_ten(dim1, dim2) -> tuple[Matrix, Tensor]:
     mat = match.randn(dim1, dim2)
     ten = to_tensor(mat, requires_grad=True)
     return mat, ten
@@ -44,24 +46,24 @@ class TestMatch(unittest.TestCase):
         n3 = 1
 
         # Fake input and output
-        x = mat_ten(N, n0)
-        y = mat_ten(N, 1)
+        x = mat_and_ten(N, n0)
+        y = mat_and_ten(N, 1)
 
         # Parameters
         W = []
         b = []
 
         # Layer 1
-        W.append(mat_ten(n1, n0))
-        b.append(mat_ten(n1, 1))
+        W.append(mat_and_ten(n1, n0))
+        b.append(mat_and_ten(n1, 1))
 
         # Layer 2
-        W.append(mat_ten(n2, n1))
-        b.append(mat_ten(n2, 1))
+        W.append(mat_and_ten(n2, n1))
+        b.append(mat_and_ten(n2, 1))
 
         # Layer 3
-        W.append(mat_ten(n3, n2))
-        b.append(mat_ten(n3, 1))
+        W.append(mat_and_ten(n3, n2))
+        b.append(mat_and_ten(n3, 1))
 
         # Forward
         mat_a, ten_a = x
@@ -89,8 +91,8 @@ class TestMatch(unittest.TestCase):
     def test_arithmetic(self):
         """Test the output and gradient of arbitrary arithmetic."""
 
-        mat1, ten1 = mat_ten(3, 2)
-        mat2, ten2 = mat_ten(3, 2)
+        mat1, ten1 = mat_and_ten(3, 2)
+        mat2, ten2 = mat_and_ten(3, 2)
 
         mat3 = mat1 * mat2 * -1 + 5
         ten3 = ten1 * ten2 * -1 + 5
@@ -128,10 +130,10 @@ class TestMatch(unittest.TestCase):
         ten_relu = torch.nn.ReLU()
 
         # Manually set the tensor to the same values as the matrix
-        ten_linr.weight = torch.nn.Parameter(to_tensor(mat_linr.A))
+        ten_linr.weight = torch.nn.Parameter(to_tensor(mat_linr.W))
         ten_linr.bias = torch.nn.Parameter(to_tensor(mat_linr.b).squeeze())
 
-        mat_x, ten_x = mat_ten(5, 10)
+        mat_x, ten_x = mat_and_ten(N, n0)
 
         mat_z = mat_linr(mat_x)
         mat_a = mat_relu(mat_z)
@@ -141,6 +143,65 @@ class TestMatch(unittest.TestCase):
 
         self.assertTrue(almostEqual(mat_z, ten_z))
         self.assertTrue(almostEqual(mat_a, ten_a))
+
+    def test_module(self):
+        """Test the neural network module class."""
+        N, n0, n1, n2 = 7, 10, 14, 7
+
+        class MatchNetwork(match.nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.linear1 = match.nn.Linear(n0, n1)
+                self.relu = match.nn.ReLU()
+                self.linear2 = match.nn.Linear(n1, n2)
+                self.sigmoid = match.nn.Sigmoid()
+
+            def forward(self, x) -> Matrix:
+                x = self.linear1(x)
+                x = self.relu(x)
+                x = self.linear2(x)
+                x = self.sigmoid(x)
+                return x
+
+        class TorchNetwork(torch.nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.linear1 = torch.nn.Linear(n0, n1)
+                self.relu = torch.nn.ReLU()
+                self.linear2 = torch.nn.Linear(n1, n2)
+                self.sigmoid = torch.nn.Sigmoid()
+
+            def forward(self, x) -> Matrix:
+                x = self.linear1(x)
+                x = self.relu(x)
+                x = self.linear2(x)
+                x = self.sigmoid(x)
+                return x
+
+        match_net = MatchNetwork()
+        torch_net = TorchNetwork()
+
+        # Set parameter values equal to one another
+        with torch.no_grad():
+            for mparam, tparam in zip(match_net.parameters(), torch_net.parameters()):
+                t = torch.tensor(mparam.data.data).squeeze()
+                tparam.copy_(t)
+
+        mat_x, ten_x = mat_and_ten(N, n0)
+
+        mat_y = match_net(mat_x)
+        ten_y = torch_net(ten_x)
+
+        self.assertTrue(almostEqual(mat_y, ten_y))
+
+        mat_y_mean = mat_y.mean()
+        ten_y_mean = ten_y.mean()
+
+        mat_y_mean.backward()
+        ten_y_mean.backward()
+
+        for mparam, tparam in zip(match_net.parameters(), torch_net.parameters()):
+            self.assertTrue(almostEqual(mparam, tparam, check_grad=True))
 
 
 if __name__ == "__main__":
