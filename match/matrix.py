@@ -1,7 +1,7 @@
 """
 TODO(AJC): things for me to add in the future.
 
-- abs, __abs__, sin, cos, log, max, min, others?
+- sin, cos, log, max, min, others?
 """
 
 from __future__ import annotations

@@ -20,7 +20,7 @@ https://user-images.githubusercontent.com/4173647/154419094-5787e3a5-0e69-4d89-9
 
 # Demos
 
-Although `Match` does not have any dependencies, the demos do. Demos import [matplotlib](https://matplotlib.org/), but you can skip (or comment) plotting cells (code) and not miss out on much. Demos come in two flavors: Jupyter Notebooks and Python scripts. These files are synced using [Jupytext](https://jupytext.readthedocs.io/en/latest/ "Jupyter Notebooks as Markdown Documents, Julia, Python or R Scripts — Jupytext documentation").
+Although **Match** does not have any dependencies, the demos do. Demos import [matplotlib](https://matplotlib.org/), but you can skip (or comment) plotting cells (code) and not miss out on much. Demos come in two flavors: Jupyter Notebooks and Python scripts. These files are synced using [Jupytext](https://jupytext.readthedocs.io/en/latest/ "Jupyter Notebooks as Markdown Documents, Julia, Python or R Scripts — Jupytext documentation").
 
 # Implementation of Automatic Differentiation
 
