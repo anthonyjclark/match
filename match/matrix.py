@@ -156,12 +156,34 @@ class Matrix(object):
         result._gradient = _gradient
         return result
 
+    def abs(self) -> Matrix:
+        """Return the element-wise absolute matrix values."""
+        result = Matrix(self.data.abs(), children=(self,))
+
+        def _gradient() -> None:
+            self.grad += (self.data > 0) * result.grad
+            self.grad += -(self.data < 0) * result.grad
+
+        result._gradient = _gradient
+        return result
+
     def relu(self) -> Matrix:
         """Element-wise rectified linear unit (ReLU)."""
         result = Matrix(self.data.relu(), children=(self,))
 
         def _gradient() -> None:
             self.grad += (result.data > 0) * result.grad
+
+        result._gradient = _gradient
+        return result
+
+    def leakyrelu(self) -> Matrix:
+        """Element-wise leaky ReLU."""
+        result = Matrix(self.data.leakyrelu(), children=(self,))
+
+        def _gradient() -> None:
+            self.grad += (result.data > 0) * result.grad
+            self.grad += (result.data <= 0) * 0.01 * result.grad
 
         result._gradient = _gradient
         return result

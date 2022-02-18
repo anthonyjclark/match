@@ -1,7 +1,13 @@
+"""
+TODO(AJC):
+
+- change name of data member
+"""
+
 from __future__ import annotations
 
 from math import exp
-from operator import add, gt, mul, pow
+from operator import add, ge, gt, le, lt, mul, pow
 from random import gauss
 from typing import Callable
 
@@ -61,6 +67,13 @@ class List2D(object):
     def mean(self) -> float:
         return self.sum() / (self.nrow * self.ncol)
 
+    def abs(self) -> List2D:
+        data = [
+            [abs(self.data[i][j]) for j in range(self.ncol)]
+            for i in range(self.nrow)
+        ]
+        return List2D(*self.shape, data)
+
     def relu(self) -> List2D:
         data = [
             [max(0.0, self.data[i][j]) for j in range(self.ncol)]
@@ -70,7 +83,7 @@ class List2D(object):
 
     def leakyrelu(self) -> List2D:
         data = [
-            [max(0.0, self.data[i][j]) for j in range(self.ncol)]
+            [self.data[i][j] * (0.01 if self.data[i][j] <= 0 else 1) for j in range(self.ncol)]
             for i in range(self.nrow)
         ]
         return List2D(*self.shape, data)
@@ -208,3 +221,15 @@ class List2D(object):
     def __gt__(self, rhs: float | int | List2D) -> List2D:
         """Element-wise comparison: self > rhs."""
         return self.__binary_op(gt, rhs)
+
+    def __ge__(self, rhs: float | int | List2D) -> List2D:
+        """Element-wise comparison: self >= rhs."""
+        return self.__binary_op(ge, rhs)
+
+    def __lt__(self, rhs: float | int | List2D) -> List2D:
+        """Element-wise comparison: self < rhs."""
+        return self.__binary_op(lt, rhs)
+
+    def __le__(self, rhs: float | int | List2D) -> List2D:
+        """Element-wise comparison: self <= rhs."""
+        return self.__binary_op(le, rhs)

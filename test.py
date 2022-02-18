@@ -1,4 +1,7 @@
 # %%
+# %load_ext autoreload
+# %autoreload 2
+
 from __future__ import annotations
 
 # %%
@@ -211,6 +214,49 @@ class TestMatch(unittest.TestCase):
 
         for mparam, tparam in zip(match_net.parameters(), torch_net.parameters()):
             self.assertTrue(almostEqual(mparam, tparam, check_grad=True))
+
+    def test_leakyrelu(self):
+        match_lrlu = match.nn.LeakyReLU()
+        torch_lrlu = torch.nn.LeakyReLU()
+
+        m, t = mat_and_ten(31, 17)
+        
+        # Check forward
+        mvals = match_lrlu(m)
+        tvals = torch_lrlu(t)
+        self.assertTrue(almostEqual(mvals, tvals))
+        
+        # Check backward
+        mtest = mvals.mean()
+        mtest.backward()
+        
+        ttest = tvals.mean()
+        ttest.backward()
+        
+        self.assertTrue(almostEqual(m, t, check_grad=True))
+
+    def test_mae(self):
+        match_mae = match.nn.MAELoss()
+        torch_mae = torch.nn.L1Loss()
+
+        my, ty = mat_and_ten(4, 3)
+        myhat, tyhat = mat_and_ten(4, 3)
+
+        # Check forward
+        mvals = match_mae(my, myhat)
+        tvals = torch_mae(ty, tyhat)
+        self.assertTrue(almostEqual(mvals, tvals))
+
+        # Check backward
+        mtest = mvals.mean()
+        mtest.backward()
+
+        ttest = tvals.mean()
+        ttest.backward()
+
+        # Note: outputs really shouldn't have derivatives
+        self.assertTrue(almostEqual(my, ty, check_grad=True))
+        self.assertTrue(almostEqual(myhat, tyhat, check_grad=True))
 
 
 # %%

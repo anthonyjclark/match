@@ -93,6 +93,14 @@ class ReLU(Module):
     def forward(self, x: Matrix) -> Matrix:
         return x.relu()
 
+class LeakyReLU(Module):
+    """
+    LeakyReLU(x) = x if x > 0, 0.01x otherwise
+    """
+
+    def forward(self, x: Matrix) -> Matrix:
+        return x.leakyrelu()
+
 
 class Sigmoid(Module):
     """
@@ -110,3 +118,11 @@ class MSELoss(Module):
 
     def forward(self, prediction: Matrix, target: Matrix) -> Matrix:
         return ((target - prediction) ** 2).mean()
+
+class MAELoss(Module):
+    """
+    loss = (1/N) * Σ |yhati - yi|
+    """
+
+    def forward(self, prediction: Matrix, target: Matrix) -> Matrix:
+        return (target - prediction).abs().mean()
