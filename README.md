@@ -24,7 +24,7 @@ Although **Match** does not have any dependencies, the demos do. Demos import [m
 
 # Implementation of Automatic Differentiation
 
-Here are the highlights of the implementation:
+The library uses implements [reverse-mode automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation#Reverse_accumulation). Here are the highlights of the implementation:
 
 - `list2d.py` contains an implementation of several matrix operations (e.g., element-wise arithmetic, matrix multiplication, etc.)
 - `matrix.py` relies on `list2d.py` and adds automatic differentiation functionality (it was important to decouple the underlying matrix operations in `list2d.py` from the usage of `Matrix` objects; this made it easier to include matrix operations in the gradient functions without running into a recursive loop)
