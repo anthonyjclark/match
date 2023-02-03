@@ -97,6 +97,7 @@ class ReLU(Module):
         # Returns a new Matrix
         return x.relu()
 
+
 class LeakyReLU(Module):
     """
     LeakyReLU(x) = x if x > 0, 0.01x otherwise
@@ -125,6 +126,7 @@ class MSELoss(Module):
     def forward(self, prediction: Matrix, target: Matrix) -> Matrix:
         # Returns a new Matrix
         return ((target - prediction) ** 2).mean()
+
 
 class MAELoss(Module):
     """
