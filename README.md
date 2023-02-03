@@ -1,3 +1,7 @@
+_ convention (single after, double before, dunder)
+how matrix handles the compute graph (creates a closure and captures self and result and rhs)
+
+
 # Match
 
 A pure-Python, PyTorch-like automatic differentiation library for education. Here is the directory structure of the repository.

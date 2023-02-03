@@ -28,7 +28,7 @@ def almostEqual(matrix: Matrix, tensor: Tensor, check_grad=False) -> bool:
 
 # %%
 def to_tensor(matrix: Matrix, requires_grad=False, get_grad=False) -> Tensor:
-    mdata = matrix.grad.data if get_grad else matrix.data.data
+    mdata = matrix.grad.vals if get_grad else matrix.data.vals
     return torch.tensor(mdata, requires_grad=requires_grad)
 
 
@@ -196,7 +196,7 @@ class TestMatch(unittest.TestCase):
         # Set parameter values equal to one another
         with torch.no_grad():
             for mparam, tparam in zip(match_net.parameters(), torch_net.parameters()):
-                t = torch.tensor(mparam.data.data).squeeze()
+                t = torch.tensor(mparam.data.vals).squeeze()
                 tparam.copy_(t)
 
         mat_x, ten_x = mat_and_ten(N, n0)
@@ -220,19 +220,19 @@ class TestMatch(unittest.TestCase):
         torch_lrlu = torch.nn.LeakyReLU()
 
         m, t = mat_and_ten(31, 17)
-        
+
         # Check forward
         mvals = match_lrlu(m)
         tvals = torch_lrlu(t)
         self.assertTrue(almostEqual(mvals, tvals))
-        
+
         # Check backward
         mtest = mvals.mean()
         mtest.backward()
-        
+
         ttest = tvals.mean()
         ttest.backward()
-        
+
         self.assertTrue(almostEqual(m, t, check_grad=True))
 
     def test_mae(self):

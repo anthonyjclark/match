@@ -127,7 +127,7 @@ for epoch in range(num_epochs):
     y_prediction = model(x)
     # Save prediction and a corresponding label
     loss = loss_fcn(y_prediction, y_target)
-    predictions.append((y_prediction, epoch + 1, loss.data.data[0][0]))
+    predictions.append((y_prediction, epoch + 1, loss.data.vals[0][0]))
 
     # Backpropagation
     model.zero_grad()
@@ -158,8 +158,8 @@ ax.set_ylim([-5, 20])
 
 line, = ax.plot([], [], color="r", lw=2, label="Prediction")
 
-xT = x.T.data.data
-ytT = y_target.T.data.data
+xT = x.T.data.vals
+ytT = y_target.T.data.vals
 
 ax.scatter(xT, ytT, lw=2, label="Target")
 
@@ -215,7 +215,7 @@ for epoch in range(num_epochs):
     y_prediction = model(x)
     # Save prediction and a corresponding label
     loss = loss_fcn(y_prediction, y_target)
-    predictions.append((y_prediction, epoch + 1, loss.data.data[0][0]))
+    predictions.append((y_prediction, epoch + 1, loss.data.vals[0][0]))
 
     # Backpropagation
     model.zero_grad()

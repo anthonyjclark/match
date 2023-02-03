@@ -77,7 +77,7 @@ def mat(values: list[list[float]]) -> Matrix:
     Returns:
         Matrix: a matrix with the provided data.
     """
-    return Matrix(List2D.fromData(deepcopy(values)))
+    return Matrix(List2D.from_2d_list(deepcopy(values)))
 
 
 class Matrix(object):
@@ -102,12 +102,13 @@ class Matrix(object):
         return self.__repr__()
 
     def backward(self) -> None:
-        """Compute all gradients."""
+        """Compute all gradients using backpropagation."""
 
         sorted_nodes: list[Matrix] = []
         visited: set[Matrix] = set()
 
         # Sort all elements in the compute graph using a topological ordering (DFS)
+        # (Creating a closure here for convenience; capturing sorted_nodes and visited)
         def topological_sort(node: Matrix) -> None:
             if node not in visited:
                 visited.add(node)
@@ -115,12 +116,13 @@ class Matrix(object):
                     topological_sort(child)
                 sorted_nodes.append(node)
 
+        # Perform the topological sort
         topological_sort(self)
 
         # Initialize all gradients with ones
         self.grad.ones_()
 
-        # Update gradients from output to input
+        # Update gradients from output to input (backwards)
         for node in reversed(sorted_nodes):
             node._gradient()
 
@@ -140,7 +142,7 @@ class Matrix(object):
         result = Matrix(List2D(1, 1, self.data.sum()), children=(self,))
 
         def _gradient() -> None:
-            self.grad += List2D(self.nrow, self.ncol, result.grad.data[0][0])
+            self.grad += List2D(self.nrow, self.ncol, result.grad.vals[0][0])
 
         result._gradient = _gradient
         return result
@@ -151,7 +153,7 @@ class Matrix(object):
 
         def _gradient() -> None:
             n = self.nrow * self.ncol
-            self.grad += List2D(self.nrow, self.ncol, result.grad.data[0][0] / n)
+            self.grad += List2D(self.nrow, self.ncol, result.grad.vals[0][0] / n)
 
         result._gradient = _gradient
         return result
@@ -202,9 +204,9 @@ class Matrix(object):
         """Element-wise addition."""
         assert isinstance(rhs, (float, int, Matrix)), f"Wrong type: {type(rhs)}"
 
-        rhsvals = rhs.data if isinstance(rhs, Matrix) else rhs
+        rhs_vals = rhs.data if isinstance(rhs, Matrix) else rhs
         children = (self, rhs) if isinstance(rhs, Matrix) else (self,)
-        result = Matrix(self.data + rhsvals, children=children)
+        result = Matrix(self.data + rhs_vals, children=children)
 
         def _gradient() -> None:
             self.grad += result.grad.unbroadcast(*self.shape)
@@ -218,12 +220,12 @@ class Matrix(object):
         """Element-wise multiplication."""
         assert isinstance(rhs, (float, int, Matrix)), f"Wrong type: {type(rhs)}"
 
-        rhsvals = rhs.data if isinstance(rhs, Matrix) else rhs
+        rhs_vals = rhs.data if isinstance(rhs, Matrix) else rhs
         children = (self, rhs) if isinstance(rhs, Matrix) else (self,)
-        result = Matrix(self.data * rhsvals, children=children)
+        result = Matrix(self.data * rhs_vals, children=children)
 
         def _gradient() -> None:
-            self.grad += (rhsvals * result.grad).unbroadcast(*self.shape)
+            self.grad += (rhs_vals * result.grad).unbroadcast(*self.shape)
             if isinstance(rhs, Matrix):
                 rhs.grad += (self.data * result.grad).unbroadcast(*rhs.shape)
 
@@ -234,10 +236,10 @@ class Matrix(object):
         """Element-wise exponentiation: self^rhs."""
         assert isinstance(rhs, (float, int)), f"Wrong type: {type(rhs)}"
 
-        result = Matrix(self.data ** rhs, children=(self,))
+        result = Matrix(self.data**rhs, children=(self,))
 
         def _gradient() -> None:
-            # rhsvals will be a number (not matrix)
+            # rhs_vals will be a number (not matrix)
             g = rhs * self.data ** (rhs - 1) * result.grad
             self.grad += g.unbroadcast(*self.shape)
 
@@ -271,16 +273,16 @@ class Matrix(object):
         return -self + lhs
 
     def __rmul__(self, lhs: float | int) -> Matrix:
-        """Self as RHS in element-wise multiplication: lhs * self."""
+        """Element-wise multiplication is commutative: lhs * self."""
         return self * lhs
 
     def __truediv__(self, rhs: float | int) -> Matrix:
         """Element-wise division: self / rhs."""
-        return self * rhs ** -1
+        return self * rhs**-1
 
     def __rtruediv__(self, lhs: float | int) -> Matrix:
         """Self as RHS in element-wise division: lhs / self."""
-        return lhs * self ** -1
+        return lhs * self**-1
 
     def __neg__(self) -> Matrix:
         """Element-wise unary negation: -self."""
