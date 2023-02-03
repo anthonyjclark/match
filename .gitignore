@@ -1,3 +1,5 @@
+# Ignoring .vscode for pedagogical reasons
+.vscode
 
 # Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=jupyternotebooks,python,visualstudiocode
@@ -173,4 +175,3 @@ cython_debug/
 !.vscode/*.code-snippets
 
 # End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python,visualstudiocode
-

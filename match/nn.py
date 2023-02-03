@@ -46,11 +46,13 @@ class Module:
         return self.forward(*args)
 
     def forward(self) -> Matrix:
-        """Forward must be implemented by the subclas."""
+        """Forward must be implemented by the subclass."""
         raise NotImplementedError("Implement in the subclass.")
 
     def parameters(self) -> list[Matrix]:
-        """Collect all parameters by searching attributes for Matrix objects."""
+        """Return a list of all parameters in the module."""
+
+        # Collect all parameters by searching attributes for Module objects.
         params = []
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
@@ -79,6 +81,7 @@ class Linear(Module):
         self.b = match.randn(out_features, 1) * sqrt((2 / out_features) / 3)
 
     def forward(self, x: Matrix) -> Matrix:
+        # Returns a new Matrix
         return x @ self.W.T + self.b.T
 
     def __repr__(self) -> str:
@@ -91,6 +94,7 @@ class ReLU(Module):
     """
 
     def forward(self, x: Matrix) -> Matrix:
+        # Returns a new Matrix
         return x.relu()
 
 
@@ -100,6 +104,7 @@ class Sigmoid(Module):
     """
 
     def forward(self, x: Matrix) -> Matrix:
+        # Returns a new Matrix
         return x.sigmoid()
 
 
@@ -109,4 +114,5 @@ class MSELoss(Module):
     """
 
     def forward(self, prediction: Matrix, target: Matrix) -> Matrix:
+        # Returns a new Matrix
         return ((target - prediction) ** 2).mean()

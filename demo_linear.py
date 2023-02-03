@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.4
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -51,11 +51,11 @@ def plot_linear(x, *, yt=None, yp=None, ypl=None, ax=None):
         _, ax = plt.subplots(figsize=(8,4), subplot_kw=plot_args)
 
     # Grab the underlying matrix data (a bit hacky for now)
-    xT = x.T.data.data
+    xT = x.T.data.vals
 
     # Plot the true data if it exists
     if yt:
-        ytT = yt.T.data.data
+        ytT = yt.T.data.vals
         if three_d:
             ax.scatter(xT[0], xT[1], ytT[0], label="Target")
         else:
@@ -65,7 +65,7 @@ def plot_linear(x, *, yt=None, yp=None, ypl=None, ax=None):
     if yp:
         # Use "Prediction" as the default label
         ypl = "Prediction" if not ypl else ypl
-        ypT = yp.T.data.data
+        ypT = yp.T.data.vals
 
         if three_d:
             ax.scatter(xT[0], xT[1], ypT[0], label=ypl)
@@ -105,17 +105,18 @@ loss_fcn = match.nn.MSELoss()
 # A single-neuron model
 model = match.nn.Linear(nx, ny)
 
+"""
 # An alternative method for constructing the model
-# class Neuron(match.nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.linear = match.nn.Linear(nx, ny)
+class Neuron(match.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = match.nn.Linear(nx, ny)
 
-#     def forward(self, x):
-#         return self.linear(x)
+    def forward(self, x):
+        return self.linear(x)
 
-# model = Neuron()
-
+model = Neuron()
+"""
 
 # Save model predictions for each epoch so that we can
 # plot progress
@@ -127,7 +128,7 @@ for epoch in range(num_epochs):
     y_prediction = model(x)
     # Save prediction and a corresponding label
     loss = loss_fcn(y_prediction, y_target)
-    predictions.append((y_prediction, epoch + 1, loss.data.data[0][0]))
+    predictions.append((y_prediction, epoch + 1, loss.data.vals[0][0]))
 
     # Backpropagation
     model.zero_grad()
@@ -158,15 +159,15 @@ ax.set_ylim([-5, 20])
 
 line, = ax.plot([], [], color="r", lw=2, label="Prediction")
 
-xT = x.T.data.data
-ytT = y_target.T.data.data
+xT = x.T.data.vals
+ytT = y_target.T.data.vals
 
 ax.scatter(xT, ytT, lw=2, label="Target")
 
 ax.legend()
 
 def animate(frame):
-    ypT = frame[0].T.data.data
+    ypT = frame[0].T.data.vals
     line.set_data(xT, ypT)
     return line,
 
@@ -215,7 +216,7 @@ for epoch in range(num_epochs):
     y_prediction = model(x)
     # Save prediction and a corresponding label
     loss = loss_fcn(y_prediction, y_target)
-    predictions.append((y_prediction, epoch + 1, loss.data.data[0][0]))
+    predictions.append((y_prediction, epoch + 1, loss.data.vals[0][0]))
 
     # Backpropagation
     model.zero_grad()

@@ -1,15 +1,23 @@
+# %%
+# %load_ext autoreload
+# %autoreload 2
+
 from __future__ import annotations
 
+# %%
 import unittest
 
+# %%
 # Use torch to compute correct output for comparison
 import torch
 from torch import Tensor
 
+# %%
 import match
 from match import Matrix
 
 
+# %%
 def almostEqual(matrix: Matrix, tensor: Tensor, check_grad=False) -> bool:
     m = to_tensor(matrix, get_grad=check_grad)
     t = Tensor(tensor.grad) if check_grad else tensor
@@ -18,23 +26,27 @@ def almostEqual(matrix: Matrix, tensor: Tensor, check_grad=False) -> bool:
     return torch.allclose(m, t, rtol=1e-02, atol=1e-05)
 
 
+# %%
 def to_tensor(matrix: Matrix, requires_grad=False, get_grad=False) -> Tensor:
-    mdata = matrix.grad.data if get_grad else matrix.data.data
+    mdata = matrix.grad.vals if get_grad else matrix.data.vals
     return torch.tensor(mdata, requires_grad=requires_grad)
 
 
+# %%
 def mat_and_ten(dim1, dim2) -> tuple[Matrix, Tensor]:
     mat = match.randn(dim1, dim2)
     ten = to_tensor(mat, requires_grad=True)
     return mat, ten
 
 
+# %%
 def neuron(a, w, b, relu=True):
     z = a @ w.T + b.T
     a = z.relu() if relu else z.sigmoid()
     return z, a
 
 
+# %%
 class TestMatch(unittest.TestCase):
     def test_3layer(self):
         """Test the output and gradient of a three layer network."""
@@ -184,7 +196,7 @@ class TestMatch(unittest.TestCase):
         # Set parameter values equal to one another
         with torch.no_grad():
             for mparam, tparam in zip(match_net.parameters(), torch_net.parameters()):
-                t = torch.tensor(mparam.data.data).squeeze()
+                t = torch.tensor(mparam.data.vals).squeeze()
                 tparam.copy_(t)
 
         mat_x, ten_x = mat_and_ten(N, n0)
@@ -204,5 +216,6 @@ class TestMatch(unittest.TestCase):
             self.assertTrue(almostEqual(mparam, tparam, check_grad=True))
 
 
+# %%
 if __name__ == "__main__":
     unittest.main()

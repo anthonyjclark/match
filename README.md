@@ -1,3 +1,7 @@
+_ convention (single after, double before, dunder)
+how matrix handles the compute graph (creates a closure and captures self and result and rhs)
+
+
 # Match
 
 A pure-Python, PyTorch-like automatic differentiation library for education. Here is the directory structure of the repository.
@@ -20,11 +24,11 @@ https://user-images.githubusercontent.com/4173647/154419094-5787e3a5-0e69-4d89-9
 
 # Demos
 
-Although **Match** does not have any dependencies, the demos do. Demos import [matplotlib](https://matplotlib.org/), but you can skip (or comment) plotting cells (code) and not miss out on much. Demos come in two flavors: Jupyter Notebooks and Python scripts. These files are synced using [Jupytext](https://jupytext.readthedocs.io/en/latest/ "Jupyter Notebooks as Markdown Documents, Julia, Python or R Scripts — Jupytext documentation").
+Although **Match** does not have any dependencies, the demos do. Demos import [matplotlib](https://matplotlib.org/), but you can skip (or comment) plotting cells (code) and not miss out on much. Demos come in two flavors: Jupyter Notebooks and Python scripts. These files are synced using [Jupytext](https://jupytext.readthedocs.io/en/latest/).
 
 # Implementation of Automatic Differentiation
 
-Here are the highlights of the implementation:
+The library uses implements [reverse-mode automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation#Reverse_accumulation). Here are highlights of the implementation:
 
 - `list2d.py` contains an implementation of several matrix operations (e.g., element-wise arithmetic, matrix multiplication, etc.)
 - `matrix.py` relies on `list2d.py` and adds automatic differentiation functionality (it was important to decouple the underlying matrix operations in `list2d.py` from the usage of `Matrix` objects; this made it easier to include matrix operations in the gradient functions without running into a recursive loop)
@@ -46,11 +50,12 @@ def sigmoid(self) -> Matrix:
 
 The following occurs when `sigmoid` is called on an existing `Matrix`:
 
-1. A new `Matrix` (called `result`) is constructed
-  + Elements in the new `Matrix` are computed by taking the `sigmoid` of each value
+1. A new `Matrix` object (called `result`) is constructed
+  + Elements in the new `Matrix` are computed by taking the `sigmoid` of each value in `self`
   + The new matrix is the same shape as the original matrix (`self`)
   + The current matrix is passed as a child into the new matrix
-2. A gradient function (called `_gradient`) is created with the correct computations
+
+2. A gradient function/closure (called `_gradient`) is created with the correct computations for future use
   + We cannot compute the gradient of `self` until we have the gradient of `result`, which is not computed until its parents are computed
   + The gradient of sigmoid is: σ(z) * (1 - σ(z))
   + The additional term `result.grad` is the backward component
@@ -60,6 +65,7 @@ The following occurs when `sigmoid` is called on an existing `Matrix`:
 The library has a limited number of tests in the file `test.py` found in the root directory. Unit tests require the PyTorch library. They should be executed with:
 
 ~~~bash
+# Run this command from the root of the repository (test.py should be in the root)
 python -m unittest test
 ~~~
 
