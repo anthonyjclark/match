@@ -1,24 +1,20 @@
-_ convention (single after, double before, dunder)
-how matrix handles the compute graph (creates a closure and captures self and result and rhs)
-
-
 # Match
 
 A pure-Python, PyTorch-like automatic differentiation library for education. Here is the directory structure of the repository.
 
-~~~text
+```text
 .
 ├── match               # The Match library
 │  ├── __init__.py      # - contains default import statements
 │  ├── list2d.py        # - a storage class for matrix data
-│  ├── matrix.py        # - the matrix class (including autodiff)
+│  ├── matrix.py        # - a 2D matrix class (including autodiff)
 │  └── nn.py            # - higher-level neural network functionality
 ├── demo_linear.ipynb   # A linear model demo (Jupyter)
 ├── demo_linear.py      # A linear model demo (script)
 ├── test.py             # Unit-tests for correctness
 ├── LICENSE             # MIT License
 └── README.md           # This document
-~~~
+```
 
 https://user-images.githubusercontent.com/4173647/154419094-5787e3a5-0e69-4d89-9ed7-e3ee507f1f32.mp4
 
@@ -34,9 +30,118 @@ The library uses implements [reverse-mode automatic differentiation](https://en.
 - `matrix.py` relies on `list2d.py` and adds automatic differentiation functionality (it was important to decouple the underlying matrix operations in `list2d.py` from the usage of `Matrix` objects; this made it easier to include matrix operations in the gradient functions without running into a recursive loop)
 - `nn.py` adds common neural network functionality on top of `matrix.py`
 
-Here is an example showing how gradients are computed when the sigmoid activation function is involved.
+## Single "`_`" Convention
 
-~~~python
+You'll see some methods with a trailing `_` in the name. This denotes that the method will mutate the current object. For example,
+
+```python
+class List2D(object):
+
+    ...
+
+    def ones_(self) -> None:
+        """Modify all values in the matrix to be 1.0."""
+        self.__set(1.0)
+
+    ...
+
+    def relu(self) -> List2D:
+        """Return a new List2D object with the ReLU of each element."""
+        vals = [
+            [max(0.0, self.vals[i][j]) for j in range(self.ncol)]
+            for i in range(self.nrow)
+        ]
+        return List2D(*self.shape, vals)
+
+    ...
+```
+
+The `ones_` method sets all values of the current `List2D` to `1.0` whereas the `relu` method returns a new `List2D` object where each value is computed using `relu` function.
+
+## Double "`__`" Convention
+
+Some method names start with two `_`. These are *internal* functions that should not be used outside of the class. For example,
+
+```python
+class List2D(object):
+
+    ...
+
+    def __set(self, val) -> None:
+        """Internal method to set all values in the matrix to val."""
+        self.vals = [[val] * self.ncol for _ in range(self.nrow)]
+
+    ...
+```
+
+You'll also find many double `_` methods. These are known as Python magic or "dunder" (double underscore) methods. They make it easy to implement things like addition and subtraction with a custom object. For example,
+
+```python
+class List2D(object):
+
+    ...
+
+    def __add__(self, rhs: float | int | List2D) -> List2D:
+        """Element-wise addition: self + rhs."""
+        return self.__binary_op(add, rhs)
+
+    ...
+
+a = List2D(...)
+b = List2D(...)
+c = a + b # <-- uses the __add__ method with self=a and rhs=b
+```
+
+## Compute Graphs
+
+Consider the following model:
+
+```python
+class MatchNetwork(match.nn.Module):
+    def __init__(self, n0, n1, n2) -> None:
+        super().__init__()
+        self.linear1 = match.nn.Linear(n0, n1)
+        self.relu = match.nn.ReLU()
+        self.linear2 = match.nn.Linear(n1, n2)
+        self.sigmoid = match.nn.Sigmoid()
+
+    def forward(self, x) -> Matrix:
+        x = self.linear1(x)
+        x = self.relu(x)
+        x = self.linear2(x)
+        x = self.sigmoid(x) # <-- this line of code is referenced below
+        return x
+```
+
+What happens we we create a `MatchNetwork` and then compute an output?
+
+```python
+num_features = 3
+num_outputs = 1
+model = MatchNetwork(n0=num_features, n1=4, n2=num_outputs)
+
+x = ... # Some input example
+y = ... # Some matching output label
+
+yhat = model(x) # <-- invokes the forward pass
+```
+
+We can represent the forward pass using math, or more readably with the following graph:
+
+![Example Network](images/ExampleNetwork.png)
+
+Although the figure above is useful, it is more useful (here) to think about the compute graph. But first, let's see the code needed to create the compute graph. Consider match's implementation of a *sigmoid*.
+
+```python
+# Sigmoid object from nn.py
+class Sigmoid(Module):
+    """Sigmoid(x) = 1 / (1 + e^(-x))"""
+
+    def forward(self, x: Matrix) -> Matrix:
+        # Returns a new Matrix
+        return x.sigmoid()
+
+# Sigmoid compute node from matrix.py
 def sigmoid(self) -> Matrix:
     """Element-wise sigmoid."""
     result = Matrix(self.data.sigmoid(), children=(self,))
@@ -46,28 +151,62 @@ def sigmoid(self) -> Matrix:
 
     result._gradient = _gradient
     return result
-~~~
 
-The following occurs when `sigmoid` is called on an existing `Matrix`:
+# Sigmoid math from list2d.py
+def sigmoid(self) -> List2D:
+    """Return a new List2D object with the sigmoid of each element."""
+    vals = [
+        [sigmoid(self.vals[i][j]) for j in range(self.ncol)]
+        for i in range(self.nrow)
+    ]
+    return List2D(*self.shape, vals)
 
-1. A new `Matrix` object (called `result`) is constructed
-  + Elements in the new `Matrix` are computed by taking the `sigmoid` of each value in `self`
-  + The new matrix is the same shape as the original matrix (`self`)
-  + The current matrix is passed as a child into the new matrix
+```
 
-2. A gradient function/closure (called `_gradient`) is created with the correct computations for future use
-  + We cannot compute the gradient of `self` until we have the gradient of `result`, which is not computed until its parents are computed
-  + The gradient of sigmoid is: σ(z) * (1 - σ(z))
-  + The additional term `result.grad` is the backward component
+The following occurs when `sigmoid(x)` is called inside our model's `forward` method:
+
+1. We call `x.sigmoid` where `x` is the output of the previous linear node.
+
+2. A new `Matrix` object (called `result`) is constructed
+  + Elements in `result` are computed by taking the `sigmoid` of each value in the linear output
+  + The the linear output becomes a child of `result` in the compute graph
+  + The new matrix is the same shape as the linear output
+
+2. A gradient [closure](https://en.wikipedia.org/wiki/Closure_(computer_programming)) (called `_gradient`) is created with the correct computations for future use
+  + The closure is attached to the `result` compute node
+  + The closure has access to the values and gradient of the linear output
+  + The **closure updates the gradient of the linear node (not itself)**
+
+Notice that we cannot compute the gradient of `self` until we have the gradient of `result`, which is not computed until its parents are computed. Here's the compute graph:
+
+![Compute Graph](images/ComputeGraph.png)
+
+We now have a compute graph (it includes a reference to `loss`, which is given below). It was generated by the `forward` method of `MatchNetwork`, which was automatically called. Each method call in `forward` (`self.linear1`, etc.) builds up the graph. Now that we have the graph, we can compute an optimization function and update all model parameters.
+
+```python
+loss = loss_fcn(yhat, y) # Any loss function will do
+net.zero_grad()          # Clear previous gradients (no-op first iteration)
+loss.backward()          # All gradients are computed
+```
+
+Finally, we just need to update parameter values.
+
+```python
+for param in net.parameters():
+    # param.grad was computed during the loss.backward() call above
+    param.data = param.data - learning_rate * param.grad
+```
+
+See [5.2 Backpropagation](https://singlepages.github.io/NeuralNetworks/#neural-networks-and-backpropagation) for more information.
 
 # Testing
 
 The library has a limited number of tests in the file `test.py` found in the root directory. Unit tests require the PyTorch library. They should be executed with:
 
-~~~bash
+```bash
 # Run this command from the root of the repository (test.py should be in the root)
 python -m unittest test
-~~~
+```
 
 # Sandbox
 
@@ -82,3 +221,4 @@ The `sandbox` directory can be ignored. That is where I am putting ideas for fut
 - [The magic behind autodiff | Tutorials on automatic differentiation and JAX](https://sscardapane.github.io/learn-autodiff/ "The magic behind autodiff | Tutorials on automatic differentiation and JAX")
 - [Google Colab: Coding a neural net](https://colab.research.google.com/drive/1HS3qbHArkqFlImT2KnF5pcMCz7ueHNvY?usp=sharing#scrollTo=RWqEaOWqNbwV)
 - [Example matrix gradients](https://github.com/Mostafa-Samir/Hands-on-Intro-to-Auto-Diff/blob/master/autodiff/grads.py)
+- [Differentiable Programming from Scratch – Max Slater – Computer Graphics, Programming, and Math](https://thenumb.at/Autodiff/)

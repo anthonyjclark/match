@@ -70,9 +70,7 @@ class Module:
 
 
 class Linear(Module):
-    """
-    y = x W^T + b
-    """
+    """y = x W^T + b"""
 
     def __init__(self, in_features, out_features) -> None:
         super().__init__()
@@ -89,9 +87,7 @@ class Linear(Module):
 
 
 class ReLU(Module):
-    """
-    ReLU(x) = max(0, x)
-    """
+    """ReLU(x) = max(0, x)"""
 
     def forward(self, x: Matrix) -> Matrix:
         # Returns a new Matrix
@@ -99,9 +95,7 @@ class ReLU(Module):
 
 
 class Sigmoid(Module):
-    """
-    Sigmoid(x) = 1 / (1 + e^(-x))
-    """
+    """Sigmoid(x) = 1 / (1 + e^(-x))"""
 
     def forward(self, x: Matrix) -> Matrix:
         # Returns a new Matrix
@@ -109,9 +103,7 @@ class Sigmoid(Module):
 
 
 class MSELoss(Module):
-    """
-    loss = (1/N) * Σ (yhati - yi)^2
-    """
+    """loss = (1/N) * Σ (yhati - yi)^2"""
 
     def forward(self, prediction: Matrix, target: Matrix) -> Matrix:
         # Returns a new Matrix
