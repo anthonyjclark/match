@@ -1,3 +1,13 @@
+<div align="center">
+
+<h1>
+<picture>
+  <img alt="Match" height="128" src="images/MatchLogo.png">
+</picture>
+</h1>
+
+</div>
+
 # Match
 
 A pure-Python, PyTorch-like automatic differentiation library for education. Here is the directory structure of the repository.
