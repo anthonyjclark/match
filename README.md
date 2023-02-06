@@ -204,10 +204,10 @@ To give you an idea of how to add some new functionality, let's trace through th
 1. Create a new class inside `nn.py`: `class MSELoss(Module)`
     + The class must extend the `Module` class
     + Implement the `forward` method for the new class
-    + It can take any arguments that fit your needs
-    + It should return a `Matrix`
-    + Most arguments will be a `Matrix` (matrix in and matrix out, hence "forward")
-    + For `MSELoss` we return `((target - prediction) ** 2).mean()`
+        + It can take any arguments that fit your needs
+        + It should return a `Matrix`
+        + Most arguments will be a `Matrix` (matrix in and matrix out, hence "forward")
+        + For `MSELoss` we return `((target - prediction) ** 2).mean()`
 2. Add necessary matrix operations to the `Matrix` class in `matrix.py`. For MSE, we need
     + Subtraction for `(target - prediction)` (implemented by defining the `__sub__` method)
     + Exponentiation for `_ ** 2` (implemented by defining the `__pow__` method)
