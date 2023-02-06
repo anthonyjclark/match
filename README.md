@@ -1,11 +1,5 @@
 <div align="center">
-
-<h1>
-<picture>
-  <img alt="Match" height="128" src="images/MatchLogo.png">
-</picture>
-</h1>
-
+<h1> <picture> <img alt="Match" height="128" src="images/MatchLogo.png"> </picture> </h1>
 </div>
 
 # Match
