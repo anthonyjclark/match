@@ -1,10 +1,13 @@
 <div align="center">
-<h1> <picture> <img alt="Match" height="128" src="images/MatchLogo.png"> </picture> </h1>
+
+<picture> <img alt="Match" height="128" src="images/MatchLogo.png"> </picture>
+<p>
+A pure-Python, PyTorch-like automatic differentiation library for education.
+</p>
+
 </div>
 
-# Match
-
-A pure-Python, PyTorch-like automatic differentiation library for education. Here is the directory structure of the repository.
+# File Structure
 
 ```text
 .
@@ -20,11 +23,11 @@ A pure-Python, PyTorch-like automatic differentiation library for education. Her
 └── README.md           # This document
 ```
 
-https://user-images.githubusercontent.com/4173647/154419094-5787e3a5-0e69-4d89-9ed7-e3ee507f1f32.mp4
-
 # Demos
 
 Although **Match** does not have any dependencies, the demos do. Demos import [matplotlib](https://matplotlib.org/), but you can skip (or comment) plotting cells (code) and not miss out on much. Demos come in two flavors: Jupyter Notebooks and Python scripts. These files are synced using [Jupytext](https://jupytext.readthedocs.io/en/latest/).
+
+https://user-images.githubusercontent.com/4173647/154419094-5787e3a5-0e69-4d89-9ed7-e3ee507f1f32.mp4
 
 # Implementation of Automatic Differentiation
 
