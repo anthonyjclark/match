@@ -167,13 +167,13 @@ The following occurs when `sigmoid(x)` is called inside our model's `forward` me
 
 1. We call `x.sigmoid` where `x` is the output of the previous linear node.
 2. A new `Matrix` object (called `result`) is constructed
-  + Elements in `result` are computed by taking the `sigmoid` of each value in the linear output
-  + The the linear output becomes a child of `result` in the compute graph
-  + The new matrix is the same shape as the linear output
+    + Elements in `result` are computed by taking the `sigmoid` of each value in the linear output
+    + The the linear output becomes a child of `result` in the compute graph
+    + The new matrix is the same shape as the linear output
 3. A gradient [closure](https://en.wikipedia.org/wiki/Closure_(computer_programming)) (called `_gradient`) is created with the correct computations for future use
-  + The closure is attached to the `result` compute node
-  + The closure has access to the values and gradient of the linear output
-  + The **closure updates the gradient of the linear node (not itself)**
+    + The closure is attached to the `result` compute node
+    + The closure has access to the values and gradient of the linear output
+    + The **closure updates the gradient of the linear node (not itself)**
 
 Notice that we cannot compute the gradient of `self` until we have the gradient of `result`, which is not computed until its parents are computed. Here's the compute graph:
 
@@ -199,33 +199,26 @@ See [5.2 Backpropagation](https://singlepages.github.io/NeuralNetworks/#neural-n
 
 # Adding Functionality
 
-TODO: provide some pointers here...
-
-start with nn.py (define module)
-you'll see missing functionality in matrix --> add functionality
-- don't forget the gradient
-you'll see missing...
-import libraries
-
 To give you an idea of how to add some new functionality, let's trace through the process I used to add the mean-square-error loss function (`MSELoss`).
 
 1. Create a new class inside `nn.py`: `class MSELoss(Module)`
-  + The class must extend the `Module` class
-  + Implement the `forward` method for the new class
+    + The class must extend the `Module` class
+    + Implement the `forward` method for the new class
     + It can take any arguments that fit your needs
     + It should return a `Matrix`
     + Most arguments will be a `Matrix` (matrix in and matrix out, hence "forward")
     + For `MSELoss` we return `((target - prediction) ** 2).mean()`
-1. Add necessary matrix operations to the `Matrix` class in `matrix.py`. For MSE, we need
-  + Subtraction for `(target - prediction)` (implemented by defining the `__sub__` method)
-  + Exponentiation for `_ ** 2` (implemented by defining the `__pow__` method)
-  + Mean for `_.mean()` (implemented by defining the `mean` method)
-  + (note that each of these new methods must build up the compute graph)
-1. Add necessary math to the `List2D` class in `list2d.py`. For MSE, we need
-  + (note that the `Matrix` class doesn't actually implement any math, just compute graph creation)
-  + Subtraction is implemented by defining the `__sub__` method
-  + Exponentiation is implemented by defining the `__pow__` method
-  + Mean is implemented by defining the `mean` method
+2. Add necessary matrix operations to the `Matrix` class in `matrix.py`. For MSE, we need
+    + Subtraction for `(target - prediction)` (implemented by defining the `__sub__` method)
+    + Exponentiation for `_ ** 2` (implemented by defining the `__pow__` method)
+    + Mean for `_.mean()` (implemented by defining the `mean` method)
+    + (note that each of these new methods must build up the compute graph)
+3. Add necessary math to the `List2D` class in `list2d.py`. For MSE, we need
+    + (note that the `Matrix` class doesn't actually implement any math, just compute graph creation)
+    + Subtraction is implemented by defining the `__sub__` method
+    + Exponentiation is implemented by defining the `__pow__` method
+    + Mean is implemented by defining the `mean` method
+    + (you may need to import new libraries or library functionality)
 
 To recap:
 
