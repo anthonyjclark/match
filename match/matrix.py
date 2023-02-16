@@ -7,6 +7,7 @@ TODO(AJC): things for me to add in the future.
 from __future__ import annotations
 
 from copy import deepcopy
+from logging import info
 
 from .list2d import List2D
 
@@ -132,6 +133,7 @@ class Matrix(object):
         result = Matrix(self.data.T, children=(self,))
 
         def _gradient() -> None:
+            info("Computing gradient of matrix transpose.")
             self.grad += result.grad.T
 
         result._gradient = _gradient
@@ -142,6 +144,7 @@ class Matrix(object):
         result = Matrix(List2D(1, 1, self.data.sum()), children=(self,))
 
         def _gradient() -> None:
+            info("Computing gradient of matrix summation.")
             self.grad += List2D(self.nrow, self.ncol, result.grad.vals[0][0])
 
         result._gradient = _gradient
@@ -152,6 +155,7 @@ class Matrix(object):
         result = Matrix(List2D(1, 1, self.data.mean()), children=(self,))
 
         def _gradient() -> None:
+            info("Computing gradient of matrix mean.")
             n = self.nrow * self.ncol
             self.grad += List2D(self.nrow, self.ncol, result.grad.vals[0][0] / n)
 
@@ -163,6 +167,7 @@ class Matrix(object):
         result = Matrix(self.data.relu(), children=(self,))
 
         def _gradient() -> None:
+            info("Computing gradient of ReLU.")
             self.grad += (result.data > 0) * result.grad
 
         result._gradient = _gradient
@@ -173,6 +178,7 @@ class Matrix(object):
         result = Matrix(self.data.sigmoid(), children=(self,))
 
         def _gradient() -> None:
+            info("Computing gradient of sigmoid.")
             self.grad += result.data * (1 - result.data) * result.grad
 
         result._gradient = _gradient
@@ -187,8 +193,10 @@ class Matrix(object):
         result = Matrix(self.data + rhs_vals, children=children)
 
         def _gradient() -> None:
+            info("Computing gradient of addition (left-hand side).")
             self.grad += result.grad.unbroadcast(*self.shape)
             if isinstance(rhs, Matrix):
+                info("Computing gradient of addition (right-hand side).")
                 rhs.grad += result.grad.unbroadcast(*rhs.shape)
 
         result._gradient = _gradient
@@ -203,8 +211,10 @@ class Matrix(object):
         result = Matrix(self.data * rhs_vals, children=children)
 
         def _gradient() -> None:
+            info("Computing gradient of multiplication (left-hand side).")
             self.grad += (rhs_vals * result.grad).unbroadcast(*self.shape)
             if isinstance(rhs, Matrix):
+                info("Computing gradient of multiplication (right-hand side).")
                 rhs.grad += (self.data * result.grad).unbroadcast(*rhs.shape)
 
         result._gradient = _gradient
@@ -218,6 +228,7 @@ class Matrix(object):
 
         def _gradient() -> None:
             # rhs_vals will be a number (not matrix)
+            info("Computing gradient of exponentiation.")
             g = rhs * self.data ** (rhs - 1) * result.grad
             self.grad += g.unbroadcast(*self.shape)
 
@@ -232,7 +243,9 @@ class Matrix(object):
         result = Matrix(self.data @ rhs.data, children=(self, rhs))
 
         def _gradient() -> None:
+            info("Computing gradient of matrix multiplication (left-hand side).")
             self.grad += result.grad @ rhs.data.T
+            info("Computing gradient of matrix multiplication (right-hand side).")
             rhs.grad += self.data.T @ result.grad
 
         result._gradient = _gradient
@@ -243,8 +256,8 @@ class Matrix(object):
         return self + lhs
 
     def __sub__(self, rhs: float | int | Matrix) -> Matrix:
-        """Element-wise subtraction: self - rhs."""
-        return -rhs + self
+        """Element-wise subtraction: self - rhs is equivalent to self + (-rhs)."""
+        return self + (-rhs)
 
     def __rsub__(self, lhs: float | int) -> Matrix:
         """Self as RHS in element-wise subtraction: lhs - self."""
