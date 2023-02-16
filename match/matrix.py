@@ -124,6 +124,7 @@ class Matrix(object):
         self.grad.ones_()
 
         # Update gradients from output to input (backwards)
+        info("Computing gradients using backpropagation.")
         for node in reversed(sorted_nodes):
             node._gradient()
 
@@ -133,7 +134,7 @@ class Matrix(object):
         result = Matrix(self.data.T, children=(self,))
 
         def _gradient() -> None:
-            info("Computing gradient of matrix transpose.")
+            info(f"Gradient of transpose. Shape: {self.shape}")
             self.grad += result.grad.T
 
         result._gradient = _gradient
@@ -144,7 +145,7 @@ class Matrix(object):
         result = Matrix(List2D(1, 1, self.data.sum()), children=(self,))
 
         def _gradient() -> None:
-            info("Computing gradient of matrix summation.")
+            info(f"Gradient of summation. Shape: {self.shape}")
             self.grad += List2D(self.nrow, self.ncol, result.grad.vals[0][0])
 
         result._gradient = _gradient
@@ -155,7 +156,7 @@ class Matrix(object):
         result = Matrix(List2D(1, 1, self.data.mean()), children=(self,))
 
         def _gradient() -> None:
-            info("Computing gradient of matrix mean.")
+            info(f"Gradient of mean. Shape: {self.shape}")
             n = self.nrow * self.ncol
             self.grad += List2D(self.nrow, self.ncol, result.grad.vals[0][0] / n)
 
@@ -167,7 +168,7 @@ class Matrix(object):
         result = Matrix(self.data.relu(), children=(self,))
 
         def _gradient() -> None:
-            info("Computing gradient of ReLU.")
+            info(f"Gradient of ReLU. Shape: {self.shape}")
             self.grad += (result.data > 0) * result.grad
 
         result._gradient = _gradient
@@ -178,7 +179,7 @@ class Matrix(object):
         result = Matrix(self.data.sigmoid(), children=(self,))
 
         def _gradient() -> None:
-            info("Computing gradient of sigmoid.")
+            info(f"Gradient of sigmoid. Shape: {self.shape}")
             self.grad += result.data * (1 - result.data) * result.grad
 
         result._gradient = _gradient
@@ -193,10 +194,10 @@ class Matrix(object):
         result = Matrix(self.data + rhs_vals, children=children)
 
         def _gradient() -> None:
-            info("Computing gradient of addition (left-hand side).")
+            info(f"Gradient of addition (LHS). Shape: {self.shape}")
             self.grad += result.grad.unbroadcast(*self.shape)
             if isinstance(rhs, Matrix):
-                info("Computing gradient of addition (right-hand side).")
+                info(f"Gradient of addition (RHS). Shape: {self.shape}")
                 rhs.grad += result.grad.unbroadcast(*rhs.shape)
 
         result._gradient = _gradient
@@ -211,10 +212,10 @@ class Matrix(object):
         result = Matrix(self.data * rhs_vals, children=children)
 
         def _gradient() -> None:
-            info("Computing gradient of multiplication (left-hand side).")
+            info(f"Gradient of multiplication (LHS). Shape: {self.shape}")
             self.grad += (rhs_vals * result.grad).unbroadcast(*self.shape)
             if isinstance(rhs, Matrix):
-                info("Computing gradient of multiplication (right-hand side).")
+                info(f"Gradient of multiplication (RHS). Shape: {self.shape}")
                 rhs.grad += (self.data * result.grad).unbroadcast(*rhs.shape)
 
         result._gradient = _gradient
@@ -228,7 +229,7 @@ class Matrix(object):
 
         def _gradient() -> None:
             # rhs_vals will be a number (not matrix)
-            info("Computing gradient of exponentiation.")
+            info(f"Gradient of exponentiation. Shape: {self.shape}")
             g = rhs * self.data ** (rhs - 1) * result.grad
             self.grad += g.unbroadcast(*self.shape)
 
@@ -243,9 +244,9 @@ class Matrix(object):
         result = Matrix(self.data @ rhs.data, children=(self, rhs))
 
         def _gradient() -> None:
-            info("Computing gradient of matrix multiplication (left-hand side).")
+            info(f"Gradient of matrix multiplication (LHS). Shape: {self.shape}")
             self.grad += result.grad @ rhs.data.T
-            info("Computing gradient of matrix multiplication (right-hand side).")
+            info(f"Gradient of matrix multiplication (RHS). Shape: {self.shape}")
             rhs.grad += self.data.T @ result.grad
 
         result._gradient = _gradient
