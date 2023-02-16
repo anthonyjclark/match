@@ -48,6 +48,53 @@ def neuron(a, w, b, relu=True):
 
 # %%
 class TestMatch(unittest.TestCase):
+    def test_relu(self):
+        """Test the output and gradient of a ReLU."""
+        match_relu = match.nn.ReLU()
+        torch_relu = torch.nn.ReLU()
+
+        # Create matching fake tensors
+        match_vals, torch_vals = mat_and_ten(5, 4)
+
+        # Check forward
+        match_relu_output = match_relu(match_vals)
+        torch_relu_output = torch_relu(torch_vals)
+        self.assertTrue(almostEqual(match_relu_output, torch_relu_output))
+
+        # Check backward by applying mean
+        match_relu_mean = match_relu_output.mean()
+        match_relu_mean.backward()
+        torch_relu_mean = torch_relu_output.mean()
+        torch_relu_mean.backward()
+        self.assertTrue(almostEqual(match_relu_mean, torch_relu_mean))
+
+        # Check partial derivatives of original match and torch vals tensors
+        self.assertTrue(almostEqual(match_vals, torch_vals, check_grad=True))
+
+    def test_mse(self):
+        """Test the output and gradient of a MSE loss."""
+        match_mse = match.nn.MSELoss()
+        torch_mse = torch.nn.MSELoss()
+
+        # Create matching fake tensors
+        match_y, torch_y = mat_and_ten(5, 7)
+        match_yhat, torch_yhat = mat_and_ten(5, 7)
+
+        # Check forward
+        match_mse_output = match_mse(match_y, match_yhat)
+        torch_mse_output = torch_mse(torch_y, torch_yhat)
+        self.assertTrue(almostEqual(match_mse_output, torch_mse_output))
+
+        # Check backward
+        match_mse_val = match_mse_output.mean()
+        match_mse_val.backward()
+        torch_mse_val = torch_mse_output.mean()
+        torch_mse_val.backward()
+
+        # NOTE: y and yhat don't normally have derivatives, but match computes them
+        self.assertTrue(almostEqual(match_y, torch_y, check_grad=True))
+        self.assertTrue(almostEqual(match_yhat, torch_yhat, check_grad=True))
+
     def test_3layer(self):
         """Test the output and gradient of a three layer network."""
 

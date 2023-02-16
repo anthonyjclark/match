@@ -47,13 +47,14 @@ def plot_linear(x, *, yt=None, yp=None, ypl=None, ax=None):
     three_d = x.shape[1] == 2
     plot_args = {"projection": "3d"} if three_d else {}
 
+    # Create tha axis if one is not provided
     if not ax:
         _, ax = plt.subplots(figsize=(8,4), subplot_kw=plot_args)
 
-    # Grab the underlying matrix data (a bit hacky for now)
+    # Grab the underlying matrix data (bit of a peek beneath / hack)
     xT = x.T.data.vals
 
-    # Plot the true data if it exists
+    # Plot the "true" data if it exists
     if yt:
         ytT = yt.T.data.vals
         if three_d:
@@ -63,7 +64,7 @@ def plot_linear(x, *, yt=None, yp=None, ypl=None, ax=None):
 
     # Plot the predicted data
     if yp:
-        # Use "Prediction" as the default label
+        # Use "Prediction" as the default label if not is not provided
         ypl = "Prediction" if not ypl else ypl
         ypT = yp.T.data.vals
 
@@ -195,7 +196,7 @@ ny = y_target.shape[1]
 
 # %%
 plot_linear(x, yt=y_target)
-_ = plt.title("Interactive Plot")
+_ = plt.title("Interactive Plot (Click and Drag Me)")
 
 # %%
 num_epochs = 10
@@ -238,6 +239,7 @@ ax_loss.set_title("Loss vs. Epoch")
 # Plot just the first and final models
 ax_lines = fig.add_subplot(122, projection="3d")
 plot_linear(x, yt=y_target, ax=ax_lines)
+ax_lines.set_title("Model Predictions (Click and Drag)")
 
 # First model
 yp, e, l = predictions[0]
