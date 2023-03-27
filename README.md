@@ -1,6 +1,10 @@
 <div align="center">
 
-<picture> <img alt="Match" height="128" src="images/MatchLogo.png"> </picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/MatchLogoDark.png">
+  <source media="(prefers-color-scheme: light)" srcset="images/MatchLogoLight.png">
+  <img alt="Match" height="128" src="images/MatchLogoLight.png">
+</picture>
 <p>
 A pure-Python, PyTorch-like automatic differentiation library for education.
 </p>
