@@ -11,6 +11,8 @@ A pure-Python, PyTorch-like automatic differentiation library for education.
 
 </div>
 
+Work on an updated version of this library can be found [here at pymatch/pymatch](https://github.com/pymatch/pymatch).
+
 # File Structure
 
 ```text
