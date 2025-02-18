@@ -1,35 +1,34 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
+#!/usr/bin/env python
+# coding: utf-8
 
-# %%
-# %load_ext autoreload
-# %autoreload 2
-# %autosave 0
+# In[1]:
+
+
+# Interactive plots are broken on the Pomona Jupyter Hub due to outdated libraries.
+# If you uncomment the first line below it will work if you have an installation on your personal computer.
+
 # %matplotlib notebook
+# %matplotlib ipympl
 
-# %%
+
+# In[2]:
+
+
 from jupyterthemes import jtplot
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
 from IPython.display import HTML
 
-# %%
+
+# In[3]:
+
+
 import match
 
-# %%
+
+# In[4]:
+
+
 jtplot.style(context="talk")
 
 
@@ -78,10 +77,11 @@ def plot_linear(x, *, yt=None, yp=None, ypl=None, ax=None):
     return ax
 
 
-# %% [markdown]
 # # Create dummy data with some noise
 
-# %%
+# In[5]:
+
+
 num_points = 50
 num_features = 1
 
@@ -91,13 +91,18 @@ y_target = x * 5 + 10
 nx = x.shape[1]
 ny = y_target.shape[1]
 
-# %%
+
+# In[6]:
+
+
 _ = plot_linear(x, yt=y_target)
 
-# %% [markdown]
+
 # # Train a single-feature linear model
 
-# %%
+# In[7]:
+
+
 num_epochs = 10
 learning_rate = 0.1
 
@@ -139,7 +144,10 @@ for epoch in range(num_epochs):
     for param in model.parameters():
         param.data = param.data - learning_rate * param.grad
 
-# %%
+
+# In[8]:
+
+
 _, (ax_loss, ax_lines) = plt.subplots(1, 2, figsize=(8, 4))
 
 losses = list(zip(*predictions))[2]
@@ -152,7 +160,10 @@ for y_prediction, epoch, loss in predictions:
     plot_linear(x, yp=y_prediction, ypl=label, ax=ax_lines)
 _ = ax_lines.set_title("Model Improvement")
 
-# %%
+
+# In[9]:
+
+
 fig, ax = plt.subplots(figsize=(8, 4))
 
 ax.set_xlim([-2.5, 2.5])
@@ -174,16 +185,24 @@ def animate(frame):
 
 animation = FuncAnimation(fig, animate, predictions)
 
-# %%
+
+# In[10]:
+
+
 HTML(animation.to_jshtml())
 
-# %%
+
+# In[11]:
+
+
 # animation.save("demo_linear_1d.mp4")
 
-# %% [markdown]
+
 # # Train a two-feature linear model¶
 
-# %%
+# In[12]:
+
+
 num_points = 100
 num_features = 2
 
@@ -194,11 +213,17 @@ y_target = x @ true_weights.T + 0.5
 nx = x.shape[1]
 ny = y_target.shape[1]
 
-# %%
+
+# In[13]:
+
+
 plot_linear(x, yt=y_target)
 _ = plt.title("Interactive Plot (Click and Drag Me)")
 
-# %%
+
+# In[14]:
+
+
 num_epochs = 10
 learning_rate = 0.1
 
@@ -227,7 +252,10 @@ for epoch in range(num_epochs):
     for param in model.parameters():
         param.data = param.data - learning_rate * param.grad
 
-# %%
+
+# In[15]:
+
+
 fig = plt.figure(figsize=(8, 4))
 
 ax_loss = fig.add_subplot(121)
@@ -249,4 +277,9 @@ plot_linear(x, yp=yp, ypl=f"{e:>3}/{num_epochs}: {l:5.2f}", ax=ax_lines)
 yp, e, l = predictions[-1]
 _ = plot_linear(x, yp=yp, ypl=f"{e:>3}/{num_epochs}: {l:5.2f}", ax=ax_lines)
 
-# %%
+
+# In[ ]:
+
+
+
+
